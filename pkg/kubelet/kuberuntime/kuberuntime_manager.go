@@ -99,6 +99,9 @@ type podStateProvider interface {
 	ShouldPodRuntimeBeRemoved(kubetypes.UID) bool
 }
 
+// 内部抽象与外部实现交互的中间层, Pod -> Container
+// - 实现 Kubelet 内部的 Runtime Interface
+// - 将内部抽象转化为 CRI 定义的行为。例如 kubeGenericRuntimeManager.SyncPod 的具体实现为 CRI 中的 RunPodSandbox 等
 type kubeGenericRuntimeManager struct {
 	runtimeName string
 	recorder    record.EventRecorder
