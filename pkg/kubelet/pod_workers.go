@@ -920,6 +920,7 @@ func (p *podWorkers) UpdatePod(options UpdatePodOptions) {
 		}
 	}
 
+	// 三者生命周期一致, Per-pod, per-channel(podUpdates), per-goroutine(podWorker)
 	// start the pod worker goroutine if it doesn't exist
 	podUpdates, exists := p.podUpdates[uid]
 	if !exists {
@@ -1214,6 +1215,7 @@ func podUIDAndRefForUpdate(update UpdatePodOptions) (types.UID, klog.ObjectRef) 
 func (p *podWorkers) podWorkerLoop(podUID types.UID, podUpdates <-chan struct{}) {
 	var lastSyncTime time.Time
 	for range podUpdates {
+		// Consuming podUpdates: 判断是否可开始 worker 流程；更新 update 为最新状态
 		ctx, update, canStart, canEverStart, ok := p.startPodSync(podUID)
 		// If we had no update waiting, it means someone initialized the channel without filling out pendingUpdate.
 		if !ok {

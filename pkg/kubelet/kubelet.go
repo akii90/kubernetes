@@ -2427,6 +2427,7 @@ func recordAdmissionRejection(reason string) {
 	}
 }
 
+// Pod 更新主入口
 // syncLoop is the main loop for processing changes. It watches for changes from
 // three channels (file, apiserver, and http) and creates a union of them. For
 // any new change seen, will run a sync against desired state and running state. If
@@ -2501,6 +2502,7 @@ func (kl *Kubelet) syncLoop(ctx context.Context, updates <-chan kubetypes.PodUpd
 //
 //   - configCh: dispatch the pods for the config change to the appropriate
 //     handler callback for the event type
+//     来自 api-server 的 pod change, create/update/delete pod spec
 //   - plegCh: update the runtime cache; sync pod
 //   - syncCh: sync all pods waiting for sync
 //   - housekeepingCh: trigger cleanup of pods
@@ -2654,6 +2656,7 @@ func (kl *Kubelet) HandlePodAdditions(pods []*v1.Pod) {
 		defer kl.podResizeMutex.Unlock()
 	}
 	for _, pod := range pods {
+		// podManager 管理 pod 期望， podWorkers 管理 pod 实际状态; 二者异步
 		// Always add the pod to the pod manager. Kubelet relies on the pod
 		// manager as the source of truth for the desired state. If a pod does
 		// not exist in the pod manager, it means that it has been deleted in
@@ -2706,7 +2709,7 @@ func (kl *Kubelet) HandlePodAdditions(pods []*v1.Pod) {
 				}
 				// For new pod, checkpoint the resource values at which the Pod has been admitted
 				if err := kl.allocationManager.SetAllocatedResources(allocatedPod); err != nil {
-					//TODO(vinaykul,InPlacePodVerticalScaling): Can we recover from this in some way? Investigate
+					// TODO(vinaykul,InPlacePodVerticalScaling): Can we recover from this in some way? Investigate
 					klog.ErrorS(err, "SetPodAllocation failed", "pod", klog.KObj(pod))
 				}
 			} else {
