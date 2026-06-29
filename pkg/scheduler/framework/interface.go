@@ -467,6 +467,7 @@ type QueueSortPlugin interface {
 	Less(*QueuedPodInfo, *QueuedPodInfo) bool
 }
 
+// 注册影响 unscheduable pods 的 event, event 发生时，重新 enqueue 这些 pod
 // EnqueueExtensions is an optional interface that plugins can implement to efficiently
 // move unschedulable Pods in internal scheduling queues.
 // In the scheduler, Pods can be unschedulable by PreEnqueue, PreFilter, Filter, Reserve, and Permit plugins,
@@ -553,6 +554,7 @@ type FilterPlugin interface {
 	// For example, during preemption, we may pass a copy of the original
 	// nodeInfo object that has some pods removed from it to evaluate the
 	// possibility of preempting them to schedule the target pod.
+	// 多次调用，用于并行过滤 nodes
 	Filter(ctx context.Context, state *CycleState, pod *v1.Pod, nodeInfo *NodeInfo) *Status
 }
 

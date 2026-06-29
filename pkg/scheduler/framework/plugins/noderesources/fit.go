@@ -496,6 +496,7 @@ func Fits(pod *v1.Pod, nodeInfo *framework.NodeInfo, opts ResourceRequestsOption
 	return fitsRequest(computePodResourceRequest(pod, opts), nodeInfo, nil, nil)
 }
 
+// 完整评估所有 node resouce 因素
 func fitsRequest(podRequest *preFilterState, nodeInfo *framework.NodeInfo, ignoredExtendedResources, ignoredResourceGroups sets.Set[string]) []InsufficientResource {
 	insufficientResources := make([]InsufficientResource, 0, 4)
 
